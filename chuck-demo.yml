@@ -1,0 +1,66 @@
+---
+# Example Ansible Playbook to deploy a simple HTML5 application on AWS
+# behind an nginx server, both on EC2, fronted by an ELB.
+#
+# Documentation:
+#  - EC2: http://docs.ansible.com/ansible/ec2_module.html
+#
+# Application: https://github.com/pixelsign/html5-device-mockups
+
+- hosts: localhost
+  
+  vars: 
+    nginx_instance_name: "chuck-demo-nginx"
+    app_instance_name: "chuck-demo-app"
+    elb_instance_name: "chuck-demo-elb"
+    deployment_region: "eu-west-1"
+
+  tasks: 
+    - shell: pip list | grep boto
+      register: pip_list_boto # 0 == found, 1 == not found 
+      changed_when: False 
+    - name: "Ensure host has correct dependencies."
+      shell: pip install boto
+      when: "pip_list_boto == 0" 
+    - name: "Ensure existence of nginx EC2 instance."
+      ec2:
+        key_name: chuck-demo
+        instance_type: t1.micro
+        image: ami-24506250
+        wait: yes 
+        exact_count: 1
+        count_tag:
+          Name: "{{ nginx_instance_name }}"
+        region: "{{ deployment_region }}"
+        instance_tags: '{"Name":"{{ nginx_instance_name }}"}'
+    - name: "Ensuring existence of application EC2 instance."
+      ec2:
+        key_name: chuck-demo
+        instance_type: t1.micro
+        image: ami-24506250
+        wait: yes
+        exact_count: 1
+        count_tag:
+          Name: "{{ app_instance_name }}"
+        region: "{{ deployment_region }}"
+        instance_tags: '{"Name":"{{ app_instance_name }}"}'
+    #- name: "Create the ELB for the stack."
+    - local_action:
+       module: ec2_elb_lb
+       name: "{{ elb_instance_name }}"
+       region: "{{ deployment_region }}"
+       state: present
+       zones:
+         - eu-west-1a
+         - eu-west-1b
+         - eu-west-1c
+       listeners:
+         - protocol: http # options are http, https, ssl, tcp
+           load_balancer_port: 80
+           instance_port: 80
+         - protocol: http
+           load_balancer_port: 443
+           instance_protocol: http # optional, defaults to value of protocol setting
+           instance_port: 80
+           # ssl certificate required for https or ssl
+           # ssl_certificate_id: "arn:aws:iam::123456789012:server-certificate/company/servercerts/ProdServerCert"
