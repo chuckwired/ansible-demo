@@ -64,7 +64,7 @@
            instance_port: 80
            # ssl certificate required for https or ssl
            # ssl_certificate_id: "arn:aws:iam::123456789012:server-certificate/company/servercerts/ProdServerCert"
-    # Setup the nginx instance
+    # TODO: Setup the nginx instance
     - include: roles/nginx/nginx_config.yml
       vars:
         - nginx_name: "{{ nginx_instance_name }}"

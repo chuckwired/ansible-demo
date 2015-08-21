@@ -1,17 +1,23 @@
 ---
 # Playbook to login and configure the EC2 instance as an nginx server.
 # To be used as an include yaml, using the vars:
-#  - ec2_address: public DNS
+#  - nginx_name: name of the EC2 instance to install nginx on
+#  - ssh_name: name of the .pem ssh file
+#  - ssh_location: location of the .pem file
 #
 #
 
 - hosts: localhost
 
+# TODO: Remove the vars and document at the top, use this script as 'include'
   vars:
     nginx_name: chuck-demo-nginx
+    ssh_name: chuck-demo
+    ssh_location: /Users/charlesrice/.ssh/
   tasks:
     - shell: aws ec2 describe-instances --filters Name=tag:Name,Values="{{nginx_name}}" # First get the instance information
       register: nginx_info
     - shell: echo "{{ (nginx_info.stdout|from_json).Reservations[0].Instances[0].PublicDnsName }}"
       register: nginx_ec2_address
-    - shell: ssh -i ~/.ssh/chuck-demo.pem ec2-user@{{ nginx_ec2_address.stdout }}
+    - shell: ssh -i {{ssh_location}}{{ssh_name}}.pem ec2-user@{{ nginx_ec2_address.stdout }}
+    - name: "Install nginx if not already installed."
