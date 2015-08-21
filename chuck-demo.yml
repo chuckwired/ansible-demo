@@ -7,10 +7,9 @@
 # Application: https://github.com/pixelsign/html5-device-mockups
 
 - hosts: localhost
-  
+
   vars: 
     
-
   tasks: 
     - include: roles/stack/stack_creator.yml
       vars:
@@ -18,9 +17,17 @@
         app_instance_name: "chuck-demo-app"
         elb_instance_name: "chuck-demo-elb"
         deployment_region: "eu-west-1"
-    # TODO: gets the address for an EC2 instance
+
+    # Get the nginx EC2 address
     - include: roles/nginx/ec2_address.yml
       vars:
         instance_name: chuck-demo-nginx
+        ssh_name: chuck-demo
+        ssh_location: /Users/charlesrice/.ssh/
+
+    # Get the App EC2 address
+    - include: roles/nginx/ec2_address.yml
+      vars:
+        instance_name: chuck-demo-app
         ssh_name: chuck-demo
         ssh_location: /Users/charlesrice/.ssh/
