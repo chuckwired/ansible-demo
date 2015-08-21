@@ -1,5 +1,5 @@
 # ansible-demo
-Small repository learning to use Ansible and the Ansible-Playbook technology to deploy a small AWS stack consisting of two EC2 instances and an ELB. This is connected to provide a simple HTML5 application, backed by an nginx server behind an ELB.  
+Small repository learning to use Ansible and the Ansible-Playbook technology to deploy a small AWS stack consisting of two EC2 instances and an ELB. This is connected to provide a simple HTML5 application, backed by an nginx server behind an ELB. Ansible will run on your localhost and remotely deploy and configure the stack for you!   
 
 ## Pre-requisites
 
