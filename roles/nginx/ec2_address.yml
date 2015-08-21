@@ -1,0 +1,21 @@
+---
+# Playbook to gather login details of an EC2 instance; will create
+# a file called "{instance_name}_address" containig the public name.
+#
+# To be used as an include yaml, using the vars:
+#  - instance_name: name of the EC2 instance 
+#  - ssh_name: name of the .pem ssh file
+#  - ssh_location: location of the .pem file
+#
+
+  - shell: aws ec2 describe-instances --filters Name=tag:Name,Values="{{instance_name}}"
+    changed_when: False
+    register: instance_info
+  - shell: echo "{{ (instance_info.stdout|from_json).Reservations[0].Instances[0].PublicDnsName }}"
+    changed_when: False
+    register: ec2_address
+  - shell: ssh -i {{ssh_location}}{{ssh_name}}.pem ec2-user@{{ ec2_address.stdout }}
+    register: ssh_to_ec2_instance
+  - shell: echo "{{ ec2_address.stdout }}" > {{ instance_name }}_address
+    when: ssh_to_ec2_instance|success
+
