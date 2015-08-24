@@ -1,0 +1,18 @@
+---
+# Playbook to gather login details of an EC2 instance; will create
+# a file called "{instance_name}_address" containig the public name.
+#
+# To be used as an include yaml, using the vars:
+#  - instance_name: name of the EC2 instance 
+#  - ssh_name: name of the .pem ssh file
+#  - ssh_location: location of the .pem file
+#
+# TODO: Ensure that we get the correct instance information, in case there are multiple with the same name tag!
+
+  # Now we need to edit the /etc/ansible/hosts for the chuck-demo.nginx.server
+  - shell: echo {{ instance_name }}_address
+    register: instance_address
+  # 1. Find the line number if exists
+  - name: 
+  # 2a. If exists, replace line
+  - shell: sed '{{ nginx_server_line }}s/.*/{{ ec2_address.stdout }}/' uktiInformation
