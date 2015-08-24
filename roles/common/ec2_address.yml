@@ -1,6 +1,6 @@
 ---
 # Playbook to gather login details of an EC2 instance; will create
-# a file called "{instance_name}_address" containig the public name.
+# a new entry in the ansible hosts file in /etc/ansible/hosts
 #
 # To be used as an include yaml, using the vars:
 #  - instance_name: name of the EC2 instance 
@@ -16,7 +16,7 @@
     shell: echo {{ (instance_info.stdout|from_json).Reservations[0].Instances[0].PublicDnsName }}
     changed_when: False
     register: ec2_address
-  - name: Wait for server to restart
+  - name: Wait for server to initialise
     wait_for:
       host={{ ec2_address.stdout }}
       port=22
@@ -25,18 +25,7 @@
     # Test connection to the instance
   - shell: ssh -i {{ssh_location}}{{ssh_name}}.pem ec2-user@{{ ec2_address.stdout }}
     register: ssh_to_ec2_instance
-    # Now we need to edit the /etc/ansible/hosts for the {instance_address}.server entry
-    # 1. Find the line number if exists
-  - shell: grep {{ instance_name }}.server /etc/ansible/hosts
-    register: grep_server_name
-    # FIXME: might be better to test if file exists, then ignore errors
-    failed_when: "'FAILED' in grep_server_name.stderr"
-    # 2a. If exists, replace line
-  - shell: grep -n {{ instance_name }}.server /etc/ansible/hosts | cut -b 1
-    when: "'{{instance_name}}.server' in grep_server_name.stdout"
-    register: server_line_number
-  - shell: sed -i '' '{{ server_line_number.stdout }}s/.*/{{ instance_name }}.server ansible_connection={{ ec2_address.stdout }}/' /etc/ansible/hosts
-    when: "'{{instance_name}}.server' in grep_server_name.stdout"
-    # 2b. If not exists, just add to the bottom of file
-  - shell: echo "{{ instance_name }}.server ansible_connection={{ ec2_address.stdout }}" >> /etc/ansible/hosts
-    when: server_line_number|skipped
+  - name: Add instance to hosts
+    add_host: 
+      hostname: "{{ ec2_address.stdout }}"
+      group: "{{ instance_name }}.server"

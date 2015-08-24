@@ -32,10 +32,22 @@
         ssh_name: chuck-demo
         ssh_location: /Users/charlesrice/.ssh/
 
-# Setup the nginx EC2 instance
-# - hosts: chuck-demo-nginx.server
-#     - include: nginx.yml
-#       vars:
+    - name: Add SSH key for configuration connections
+      authorized_key: user=charlesrice key="{{ lookup('file', '/Users/charlesrice/.ssh/id_rsa.pub') }}"
 
-#       when: chuck-demo-app_address|exists
+# "Setup the nginx EC2 instance
+- hosts: chuck-demo-nginx.server
+  remote_user: ec2-user
+  tasks:
+    - shell: echo "Hello world from APP server!"
+    # - include: roles/nginx/nginx.yml
+      # vars:
+
+# Setup the application EC2 instance
+- hosts: chuck-demo-app.server
+  remote_user: ec2-user
+  tasks:
+    - shell: echo "Hello world from APP server!"
+    # - include: roles/application/application.yml
+      # vars:
 
