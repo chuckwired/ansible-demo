@@ -8,7 +8,7 @@
 #  - ssh_location: location of the .pem file
 #
 # TODO: Ensure that we get the correct instance information, in case there are multiple with the same name tag!
-  - shell: aws ec2 describe-instances --filters Name=tag:Name,Values="{{instance_name}}"
+  - shell: aws ec2 describe-instances --filters Name=tag:Name,Values="{{instance_name}}" Name=instance-state-name,Values="running"
     changed_when: False
     register: instance_info
     # NEED TO REWRITE THIS TO BE FAULT TOLERANT v
@@ -21,9 +21,9 @@
       host={{ ec2_address.stdout }}
       port=22
       delay=1
-      timeout=300
+      timeout=600
     # Test connection to the instance
-  - shell: ssh -i {{ssh_location}}{{ssh_name}}.pem ec2-user@{{ ec2_address.stdout }}
+  - shell: ssh -i {{ssh_location}}{{ssh_name}}.pem root@{{ ec2_address.stdout }}
     register: ssh_to_ec2_instance
   - name: Add instance to hosts
     add_host: 

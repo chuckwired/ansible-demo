@@ -19,7 +19,7 @@
   ec2:
     key_name: chuck-demo
     instance_type: t1.micro
-    image: ami-24506250
+    image: ami-9ca595e8
     wait: yes 
     exact_count: 1
     count_tag:
@@ -30,7 +30,7 @@
   ec2:
     key_name: chuck-demo
     instance_type: t1.micro
-    image: ami-24506250
+    image: ami-9ca595e8 #ami-24506250 
     wait: yes
     exact_count: 1
     count_tag:

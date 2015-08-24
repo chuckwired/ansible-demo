@@ -2,8 +2,13 @@
 # Example Ansible Playbook to deploy a simple HTML5 application on AWS.
 #
 # Documentation:
-#  - EC2: http://docs.ansible.com/ansible/ec2_module.html
+#  - EC2: http://docs.ansible.com/ansible/ec2_module.
+#  - ELB: http://docs.ansible.com/ansible/ec2_elb_lb_module.html
+#  - EC2_ELB: http://docs.ansible.com/ansible/ec2_elb_module.html
+#  - Aurthorized Keys: http://docs.ansible.com/ansible/authorized_key_module.html
+#  - add_hosts: http://docs.ansible.com/ansible/add_host_module.html
 #
+# Nginx module: 
 # Application: https://github.com/pixelsign/html5-device-mockups
 
 - hosts: localhost
@@ -25,7 +30,7 @@
         ssh_name: chuck-demo
         ssh_location: /Users/charlesrice/.ssh/
 
-    # Add the App EC2 address
+    # Add the App EC2 address - will export temporary EC2 addresses below {instance_name}.server
     - include: roles/common/ec2_address.yml
       vars:
         instance_name: chuck-demo-app
@@ -37,7 +42,11 @@
 
 # "Setup the nginx EC2 instance
 - hosts: chuck-demo-nginx.server
-  remote_user: ec2-user
+  remote_user: root
+
+  roles:
+    - debops.nginx
+
   tasks:
     - shell: echo "Hello world from APP server!"
     # - include: roles/nginx/nginx.yml
