@@ -12,7 +12,8 @@
     changed_when: False
     register: instance_info
     # NEED TO REWRITE THIS TO BE FAULT TOLERANT v
-  - shell: echo {{ (instance_info.stdout|from_json).Reservations[0].Instances[0].PublicDnsName }}
+  - name: Find the public DNS name for the instance
+    shell: echo {{ (instance_info.stdout|from_json).Reservations[0].Instances[0].PublicDnsName }}
     changed_when: False
     register: ec2_address
   - name: Wait for server to restart
@@ -33,11 +34,11 @@
     register: grep_server_name
     failed_when: "'FAILED' in grep_server_name.stderr" # might be better to test if file exists, then ignore errors
   # 2a. If exists, replace line
-  - shell: get line number
-    when: "grep_server_name == 0"
+  - shell: grep -n {{ instance_name }}.server /etc/ansible/hosts | cut -b 1
+    when: "'{{instance_name}}.server' in grep_server_name.stdout"
     register: server_line_number
-  - shell: sed '{{ server_line_number }}s/.*/{{ instance_name }}.server ansible_connection={{ ec2_address.stdout }}/' /etc/ansible/hosts
-    when: "grep_server_name == 0"
+  - shell: sed -i '' '{{ server_line_number.stdout }}s/.*/{{ instance_name }}.server ansible_connection={{ ec2_address.stdout }}/' /etc/ansible/hosts
+    when: "'{{instance_name}}.server' in grep_server_name.stdout"
   # 2b. If not exists, just add to the bottom of file
   - shell: echo "{{ instance_name }}.server ansible_connection={{ ec2_address.stdout }}" >> /etc/ansible/hosts
-    when: "'' in grep_server_name.stdout"
+    when: server_line_number|skipped
