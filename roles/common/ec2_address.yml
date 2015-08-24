@@ -8,24 +8,26 @@
 #  - ssh_location: location of the .pem file
 #
 # TODO: Ensure that we get the correct instance information, in case there are multiple with the same name tag!
-  - shell: aws ec2 describe-instances --filters Name=tag:Name,Values="{{instance_name}}" Name=instance-state-name,Values="running"
+  - name: EC2 | Fetching instance details
+    shell: aws ec2 describe-instances --filters Name=tag:Name,Values="{{instance_name}}" Name=instance-state-name,Values="running"
     changed_when: False
     register: instance_info
     # NEED TO REWRITE THIS TO BE FAULT TOLERANT v
-  - name: Find the public DNS name for the instance
+  - name: EC2 | Find the public DNS name for the instance
     shell: echo {{ (instance_info.stdout|from_json).Reservations[0].Instances[0].PublicDnsName }}
     changed_when: False
     register: ec2_address
-  - name: Wait for server to initialise
+  - name: EC2 | Wait if server is still initialising
     wait_for:
       host={{ ec2_address.stdout }}
       port=22
       delay=1
       timeout=600
     # Test connection to the instance
-  - shell: ssh -i {{ssh_location}}{{ssh_name}}.pem root@{{ ec2_address.stdout }}
+  - name: EC2 | Test the connection
+    shell: ssh -i {{ssh_location}}{{ssh_name}}.pem root@{{ ec2_address.stdout }}
     register: ssh_to_ec2_instance
-  - name: Add instance to hosts
+  - name: EC2 | Add instance to hosts
     add_host: 
       hostname: "{{ ec2_address.stdout }}"
       group: "{{ instance_name }}.server"

@@ -9,13 +9,14 @@
 #   - deployment_region: region to deploy to
 #
 
-- shell: pip list | grep boto
+- name: STACKER | Check that hose has boto installed
+  shell: pip list | grep boto
   register: pip_list_boto # 0 == found, 1 == not found 
   changed_when: False 
-- name: "Ensure host has correct dependencies."
+- name: STACKER | Installing boto
   shell: pip install boto
   when: "pip_list_boto == 0" 
-- name: "Ensure existence of nginx EC2 instance."
+- name: STACKER | Ensure existence of NGINX EC2 instance.
   ec2:
     key_name: chuck-demo
     instance_type: t1.micro
@@ -26,7 +27,7 @@
       Name: "{{ nginx_instance_name }}"
     region: "{{ deployment_region }}"
     instance_tags: '{"Name":"{{ nginx_instance_name }}"}'
-- name: "Ensuring existence of application EC2 instance."
+- name: STACKER | Ensure existence of application EC2 instance."
   ec2:
     key_name: chuck-demo
     instance_type: t1.micro
@@ -38,7 +39,8 @@
     region: "{{ deployment_region }}"
     instance_tags: '{"Name":"{{ app_instance_name }}"}'
 #- name: "Create the ELB for the stack."
-- local_action:
+- name: STACKER | Ensure the load balancer exists
+  local_action:
    module: ec2_elb_lb
    name: "{{ elb_instance_name }}"
    region: "{{ deployment_region }}"
