@@ -41,12 +41,8 @@
 - hosts: chuck-demo-nginx.server
   remote_user: root
 
-# TODO: Convert to a full role
-  tasks:
-    - include: roles/nginx/nginx.yml
-      vars:
-        elb_instance_name: "chuck-demo-elb"
-        deployment_region: "eu-west-1"
+  roles:
+    - nginx
 
 # Setup the application EC2 instance
 - hosts: chuck-demo-app.server

@@ -1,0 +1,3 @@
+---
+elb_instance_name: "chuck-demo-elb"
+deployment_region: "eu-west-1"

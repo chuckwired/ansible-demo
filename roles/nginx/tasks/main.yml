@@ -3,7 +3,7 @@
 # Only supports centos!
 #
 
-- name: NGINX | Setting up nginx repository
+- name: Setting up nginx repository
   copy:
     dest: /etc/yum.repos.d/nginx.repo
     content: |
@@ -13,28 +13,28 @@
       gpgcheck=0
       enabled=1
 
-- name: NGINX | Installing NGINX
+- name: Installing NGINX
   yum:
     name: nginx
     state: latest
 
-- name: NGINX | Ensure sites-enabled directory is present
+- name: Ensure sites-enabled directory is present
   file: path=/etc/nginx/sites-enabled state=directory
 
-- name: NGINX | Ensure sites-available directory is present
+- name: Ensure sites-available directory is present
   file: path=/etc/nginx/sites-available state=directory
 
-# - name: NGINX | Copy server configuration to NGINX EC2
+# - name: Copy server configuration to NGINX EC2
 
-- name: NGINX | Starting NGINX
+- name: Starting NGINX
   service:
     name: nginx
     state: started
 
-- name: NGINX | Gathering ec2 facts...
+- name: Gathering ec2 facts...
   action: ec2_facts
 
-- name: NGINX | Register ELB to the NGINX EC2
+- name: Register ELB to the NGINX EC2
   local_action:
     module: ec2_elb
     instance_id: "{{ ansible_ec2_instance_id }}"
