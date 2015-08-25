@@ -24,7 +24,7 @@
 - name: NGINX | Ensure sites-available directory is present
   file: path=/etc/nginx/sites-available state=directory
 
-- name: NGINX | Copy server configuration to NGINX EC2
+# - name: NGINX | Copy server configuration to NGINX EC2
 
 - name: NGINX | Starting NGINX
   service:

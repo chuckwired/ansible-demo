@@ -8,13 +8,10 @@
 #  - Aurthorized Keys: http://docs.ansible.com/ansible/authorized_key_module.html
 #  - add_hosts: http://docs.ansible.com/ansible/add_host_module.html
 #
-# Nginx module: 
 # Application: https://github.com/pixelsign/html5-device-mockups
 
 - hosts: localhost
 
-  vars: 
-    
   tasks: 
     - include: roles/stack/stack_creator.yml
       vars:
@@ -44,33 +41,29 @@
 - hosts: chuck-demo-nginx.server
   remote_user: root
 
+# TODO: Convert to a full role
   tasks:
-    - name: NGINX | Setting up nginx repository
-      copy:
-        dest: /etc/yum.repos.d/nginx.repo
-        content: |
-          [nginx]
-          name=nginx repo
-          baseurl=http://nginx.org/packages/centos/$releasever/$basearch/
-          gpgcheck=0
-          enabled=1
-
-    - name: NGINX | Installing NGINX
-      yum:
-        name: nginx
-        state: latest
-
-    - name: NGINX | Starting NGINX
-      service:
-        name: nginx
-        state: started
+    - include: roles/nginx/nginx.yml
+      vars:
+        elb_instance_name: "chuck-demo-elb"
+        deployment_region: "eu-west-1"
 
 # Setup the application EC2 instance
 - hosts: chuck-demo-app.server
   remote_user: root
 
   tasks:
-    - shell: echo "Hello world from APP server!"
-    # - include: roles/application/application.yml
-      # vars:
+    - name: APP | Install Apache Web server
+      yum: 
+        name: httpd 
+        state: present
+    - name: APP | Run the web service
+      service:
+        name: httpd
+        state: started
+    - name: APP | Download an application
+      git: 
+        repo=https://github.com/pixelsign/html5-device-mockups.git
+        dest=/var/www/html
+
 
