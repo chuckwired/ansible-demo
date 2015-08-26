@@ -22,6 +22,7 @@
     name: nginx
     state: present
 
+# TODO: If needed we can use these to edit the NGINX config!
 # - name: Copy NGINX configuration to NGINX EC2
 #   copy:
 #     src: nginx.conf

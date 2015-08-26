@@ -7,7 +7,6 @@
 #  - ssh_name: name of the .pem ssh file
 #  - ssh_location: location of the .pem file
 #
-# TODO: Ensure that we get the correct instance information, in case there are multiple with the same name tag!
 
 - name: EC2 | Fetching instance details
   shell: aws ec2 describe-instances --filters Name=tag:Name,Values="{{instance_name}}" Name=instance-state-name,Values="running"

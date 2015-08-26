@@ -9,7 +9,7 @@
 #   - deployment_region: region to deploy to
 #
 
-- name: Check that hose has boto installed
+- name: Check that host has boto installed
   shell: pip list | grep boto
   register: pip_list_boto # 0 == found, 1 == not found 
   changed_when: False
@@ -40,7 +40,7 @@
       - proto: tcp
         from_port: 22
         to_port: 22
-        cidr_ip: "{{ local_ip.stdout }}/32" # Access just for me for now
+        cidr_ip: "{{ local_ip.stdout }}/32" # Access just for me
     rules_egress:
       - proto: tcp
         from_port: 80
@@ -63,19 +63,6 @@
       Name: "{{ nginx_instance_name }}"
     region: "{{ deployment_region }}"
     instance_tags: '{"Name":"{{ nginx_instance_name }}"}'
-
-# - name: Ensure existence of Application EC2 instance."
-#   ec2:
-#     key_name: chuck-demo
-#     instance_type: t1.micro
-#     image: ami-9ca595e8 #ami-24506250 
-#     wait: yes
-#     group: chuck-demo-vpc-sg
-#     exact_count: 1
-#     count_tag:
-#       Name: "{{ app_instance_name }}"
-#     region: "{{ deployment_region }}"
-#     instance_tags: '{"Name":"{{ app_instance_name }}"}'
 
 - name: Ensure the load balancer exists
   local_action:
