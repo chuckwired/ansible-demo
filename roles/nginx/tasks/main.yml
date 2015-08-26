@@ -54,7 +54,7 @@
 - name: Register ELB to the NGINX EC2
   local_action:
     module: ec2_elb
-    instance_id: "{{ ansible_ec2_instance_id }}"
+    instance_id: "{{ ansible_ec2_instance_id }}" #EC2 Fact
     ec2_elbs: "{{ elb_instance_name }}"
     region: "{{ deployment_region }}"
     state: 'present'

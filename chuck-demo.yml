@@ -14,7 +14,7 @@
 - hosts: localhost
 
   roles:
-   - stack-creator
+   - stack-creator # Creates the stack for us
 
   tasks:
     # Add the nginx EC2 address - will export temporary EC2 addresses below {instance_name}.server
@@ -37,9 +37,12 @@
 # Print information in the terminal
 - hosts: localhost
 
+  vars:
+    - elb_name_tag: chuck-demo-elb
+
   tasks:
     - name: Getting ELB information...
-      shell: aws elb describe-load-balancers --load-balancer-name chuck-demo-elb
+      shell: aws elb describe-load-balancers --load-balancer-name {{ elb_name_tag }}
       changed_when: False
       register: instance_info
     - name: Getting Public DNS for ELB...
