@@ -1,0 +1,5 @@
+---
+nginx_instance_name: "chuck-demo-nginx"
+app_instance_name: "chuck-demo-app"
+elb_instance_name: "chuck-demo-elb"
+deployment_region: "eu-west-1"

@@ -12,14 +12,10 @@
 
 - hosts: localhost
 
-  tasks: 
-    - include: roles/stack/stack_creator.yml
-      vars:
-        nginx_instance_name: "chuck-demo-nginx"
-        app_instance_name: "chuck-demo-app"
-        elb_instance_name: "chuck-demo-elb"
-        deployment_region: "eu-west-1"
+  roles:
+   - stack-creator
 
+  tasks:
     # Add the nginx EC2 address
     - include: roles/common/ec2_address.yml
       vars:
@@ -28,11 +24,11 @@
         ssh_location: /Users/charlesrice/.ssh/
 
     # Add the App EC2 address - will export temporary EC2 addresses below {instance_name}.server
-    - include: roles/common/ec2_address.yml
-      vars:
-        instance_name: chuck-demo-app
-        ssh_name: chuck-demo
-        ssh_location: /Users/charlesrice/.ssh/
+    # - include: roles/common/ec2_address.yml
+    #   vars:
+    #     instance_name: chuck-demo-app
+    #     ssh_name: chuck-demo
+    #     ssh_location: /Users/charlesrice/.ssh/
 
     - name: Add SSH key for configuration connections
       authorized_key: user=charlesrice key="{{ lookup('file', '/Users/charlesrice/.ssh/id_rsa.pub') }}"
@@ -45,21 +41,34 @@
     - nginx
 
 # Setup the application EC2 instance
-- hosts: chuck-demo-app.server
-  remote_user: root
+# - hosts: chuck-demo-app.server
+#   remote_user: root
+
+#   tasks:
+#     - name: APP | Install Apache Web server
+#       yum: 
+#         name: httpd 
+#         state: present
+#     - name: APP | Run the web service
+#       service:
+#         name: httpd
+#         state: started
+#     - name: APP | Download an application
+#       git: 
+#         repo=https://github.com/pixelsign/html5-device-mockups.git
+#         dest=/var/www/html
+
+# Print information in the terminal
+- hosts: localhost
 
   tasks:
-    - name: APP | Install Apache Web server
-      yum: 
-        name: httpd 
-        state: present
-    - name: APP | Run the web service
-      service:
-        name: httpd
-        state: started
-    - name: APP | Download an application
-      git: 
-        repo=https://github.com/pixelsign/html5-device-mockups.git
-        dest=/var/www/html
-
-
+    - name: Getting ELB information...
+      shell: aws elb describe-load-balancers --load-balancer-name chuck-demo-elb
+      changed_when: False
+      register: instance_info
+    - name: Getting Public DNS for ELB...
+      shell: echo {{ (instance_info.stdout|from_json).LoadBalancerDescriptions[0].CanonicalHostedZoneName }}
+      changed_when: False
+      register: address
+    - name: Printing... 
+      debug: msg="DONE! Access the stack at --> {{address.stdout}}"
